@@ -2,21 +2,20 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
 from operator import attrgetter
 from datetime import datetime
+from django.utils import timezone
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from .models import *
 from .forms import *
 
 
 def menu_list(request):
-    all_menus = Menu.objects.all()
-    menus = [menu for menu in all_menus if menu.expiration_date is not None
-             and menu.expiration_date >= timezone.now()]
+    """Shows menus which are not expired ordered by creation date."""
 
-    # for menu in all_menus:
-    #     if menu.expiration_date >= timezone.now():
-    #         menus.append
+    menus = Menu.objects.filter(
+        Q(expiration_date=None) |
+        Q(expiration_date__gte=timezone.now())).prefetch_related('items').order_by('created_date')
 
-    menus = sorted(menus, key=attrgetter('expiration_date'))
     return render(request, 'menu/list_all_current_menus.html', {'menus': menus})
 
 
@@ -59,3 +58,4 @@ def edit_menu(request, pk):
         'menu': menu,
         'items': items,
         })
+
