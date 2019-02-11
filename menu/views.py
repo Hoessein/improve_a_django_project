@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
-from operator import attrgetter
 from datetime import datetime
 from django.utils import timezone
 from django.db.models import Q
@@ -13,20 +12,19 @@ def menu_list(request):
     """Shows menus which are not expired ordered by creation date."""
 
     menus = Menu.objects.filter(
-        Q(expiration_date=None) |
+        Q(expiration_date__isnull=True) |
         Q(expiration_date__gte=timezone.now())).prefetch_related('items').order_by('created_date')
 
     return render(request, 'menu/list_all_current_menus.html', {'menus': menus})
 
 
 def menu_detail(request, pk):
-    menu = Menu.objects.get(pk=pk)
+    menu = get_object_or_404(Menu, pk=pk)
     return render(request, 'menu/menu_detail.html', {'menu': menu})
-
 
 def item_detail(request, pk):
     try: 
-        item = Item.objects.get(pk=pk)
+        item = get_object_or_404(Item, pk=pk)
     except ObjectDoesNotExist:
         raise Http404
     return render(request, 'menu/detail_item.html', {'item': item})
