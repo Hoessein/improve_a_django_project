@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
-from datetime import datetime
 from django.utils import timezone
-from django.db.models import Q
+from operator import attrgetter
+from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+
 from .models import *
 from .forms import *
-
 
 def menu_list(request):
     """Shows menus which are not expired ordered by creation date."""
@@ -15,20 +16,18 @@ def menu_list(request):
         Q(expiration_date__isnull=True) |
         Q(expiration_date__gte=timezone.now())).prefetch_related('items').order_by('created_date')
 
-    return render(request, 'menu/list_all_current_menus.html', {'menus': menus})
-
+    return render(request, 'menu/menu_list.html', {'menus': menus})
 
 def menu_detail(request, pk):
-    menu = get_object_or_404(Menu, pk=pk)
+    menu = Menu.objects.get(pk=pk)
     return render(request, 'menu/menu_detail.html', {'menu': menu})
 
 def item_detail(request, pk):
-    try: 
-        item = get_object_or_404(Item, pk=pk)
+    try:
+        item = Item.objects.get(pk=pk)
     except ObjectDoesNotExist:
         raise Http404
     return render(request, 'menu/detail_item.html', {'item': item})
-
 
 def create_new_menu(request):
     if request.method == "POST":
@@ -41,7 +40,6 @@ def create_new_menu(request):
     else:
         form = MenuForm()
     return render(request, 'menu/menu_edit.html', {'form': form})
-
 
 def edit_menu(request, pk):
     menu = get_object_or_404(Menu, pk=pk)
