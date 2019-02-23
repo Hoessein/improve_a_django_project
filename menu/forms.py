@@ -12,3 +12,9 @@ class MenuForm(forms.ModelForm):
     class Meta:
         model = Menu
         exclude = ('created_date',)
+
+    def clean_season(self):
+        season = self.cleaned_data['season']
+        if len(season) < 6:
+            raise forms.ValidationError('The value must be longer than 6 characters')
+
