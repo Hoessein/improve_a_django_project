@@ -7,7 +7,7 @@ from .models import Menu, Item, Ingredient
 
 class MenuForm(forms.ModelForm):
 
-    expiration_date = DateField(widget=SelectDateWidget)
+    # expiration_date = DateField(widget=SelectDateWidget)
 
     class Meta:
         model = Menu
@@ -17,4 +17,4 @@ class MenuForm(forms.ModelForm):
         season = self.cleaned_data['season']
         if len(season) < 6:
             raise forms.ValidationError('The value must be longer than 6 characters')
-
+        return season

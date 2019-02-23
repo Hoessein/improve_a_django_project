@@ -9,6 +9,7 @@ from django.db.models import Q
 from .models import *
 from .forms import *
 
+
 def menu_list(request):
     """Shows menus which are not expired ordered by creation date."""
 
@@ -20,7 +21,7 @@ def menu_list(request):
 
 
 def menu_detail(request, pk):
-    menu = Menu.objects.get(pk=pk)
+    menu = get_object_or_404(Menu, pk=pk)
     return render(request, 'menu/menu_detail.html', {'menu': menu})
 
 
@@ -28,6 +29,7 @@ def create_and_edit_menu(request, pk=None):
     if pk:
         menu = get_object_or_404(Menu, pk=pk)
         title = 'Edit Menu'
+
     else:
         menu = None
         title = 'Create Menu'
@@ -44,42 +46,9 @@ def create_and_edit_menu(request, pk=None):
 
     else:
         form = MenuForm(instance=menu)
-    return render(request, 'menu/menu_edit.html', {
-        'form': form,
-        'title': title
-    }
-                  )
+    return render(request, 'menu/menu_edit.html', {'form': form, 'title': title})
+
 
 def item_detail(request, pk):
-    try:
-        item = Item.objects.get(pk=pk)
-    except ObjectDoesNotExist:
-        raise Http404
+    item = get_object_or_404(Item, pk=pk)
     return render(request, 'menu/detail_item.html', {'item': item})
-
-# def create_new_menu(request):
-#     if request.method == "POST":
-#         form = MenuForm(request.POST)
-#         if form.is_valid():
-#             menu = form.save(commit=False)
-#             menu.created_date = timezone.now()
-#             menu.save()
-#             return redirect('menu_detail', pk=menu.pk)
-#     else:
-#         form = MenuForm()
-#     return render(request, 'menu/menu_edit.html', {'form': form})
-#
-# def edit_menu(request, pk):
-#     menu = get_object_or_404(Menu, pk=pk)
-#     items = Item.objects.all()
-#     if request.method == "POST":
-#         menu.season = request.POST.get('season', '')
-#         menu.expiration_date = datetime.strptime(request.POST.get('expiration_date', ''), '%m/%d/%Y')
-#         menu.items = request.POST.get('items', '')
-#         menu.save()
-#
-#     return render(request, 'menu/change_menu.html', {
-#         'menu': menu,
-#         'items': items,
-#         })
-#
