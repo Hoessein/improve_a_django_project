@@ -102,15 +102,17 @@ class MenuViewsTests(TestCase):
 class MenuFormTests(TestCase):
     def test_menu_form(self):
         test_user = User.objects.create_user(username='testing', password='123456')
-        test_item = Menu.objects.create(season='Dudjjud')
+        test_item = Item.objects.create(name='Hoessein', description='Whut', chef=test_user)
 
         form_data = {'season': 'Winter',
-            'items': test_item.id,
+            'items': [test_item.id],
             'expiration_date': '03/20/2020'
         }
+
         form = MenuForm(data=form_data)
-        print(form.errors)
-        pdb.set_trace()
         self.assertTrue(form.is_valid())
+
+    def test_clean_season_field(self):
+        pass
 
 
