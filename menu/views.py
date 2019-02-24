@@ -9,7 +9,6 @@ from .forms import *
 
 def menu_list(request):
     """Shows all the Menu objects ordered by created date"""
-
     menus = Menu.objects.filter(
         Q(expiration_date__isnull=True) |
         Q(expiration_date__gte=timezone.now())).prefetch_related('items').order_by('created_date')

@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.utils import timezone
-from datetime import datetime
 from django.contrib.auth.models import User
 from .models import Menu, Item, Ingredient
 from django.core.urlresolvers import reverse
@@ -14,7 +13,7 @@ class MenuModelTests(TestCase):
         menu = Menu.objects.create(
             season='Summer',
             created_date=timezone.now(),
-            expiration_date=datetime.now()
+            expiration_date=timezone.now()
         )
         self.assertEqual(str(menu), menu.season)
         now = timezone.now()
@@ -118,13 +117,13 @@ class MenuFormTests(TestCase):
             chef=test_user
         )
 
-        form_data = {
+        test_form = {
             'season': 'Winter',
             'items': [test_item.id],
-            'expiration_date': '03/20/2020'
+            'expiration_date': '2018-11-08'
         }
 
-        form = MenuForm(data=form_data)
+        form = MenuForm(data=test_form)
         self.assertTrue(form.is_valid())
 
     def test_clean_season_field(self):
@@ -140,11 +139,11 @@ class MenuFormTests(TestCase):
             chef=test_user
         )
 
-        form_data = {
+        test_form = {
             'season': 'Char',
-            'items': [test_item.id],
-            'expiration_date': '03/20/9999'
+            'items': [test_item.pk],
+            'expiration_date': str(timezone.timedelta(days=9))
         }
 
-        form = MenuForm(data=form_data)
+        form = MenuForm(data=test_form)
         self.assertFalse(form.is_valid())

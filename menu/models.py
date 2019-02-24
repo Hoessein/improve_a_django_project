@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.timezone import make_aware
+
 
 
 class Menu(models.Model):
