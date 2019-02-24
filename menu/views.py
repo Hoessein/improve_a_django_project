@@ -1,9 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import Http404
 from django.utils import timezone
-from operator import attrgetter
 from datetime import datetime
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
 from .models import *
@@ -11,7 +8,7 @@ from .forms import *
 
 
 def menu_list(request):
-    """Shows menus which are not expired ordered by creation date."""
+    """Shows all the Menu objects ordered by created date"""
 
     menus = Menu.objects.filter(
         Q(expiration_date__isnull=True) |
@@ -21,11 +18,13 @@ def menu_list(request):
 
 
 def menu_detail(request, pk):
+    """Shows details of an specific menu object"""
     menu = get_object_or_404(Menu, pk=pk)
     return render(request, 'menu/menu_detail.html', {'menu': menu})
 
 
 def create_and_edit_menu(request, pk=None):
+    """Allows user to create and edit menu objects"""
     if pk:
         menu = get_object_or_404(Menu, pk=pk)
         title = 'Edit Menu'
@@ -50,5 +49,7 @@ def create_and_edit_menu(request, pk=None):
 
 
 def item_detail(request, pk):
+    """Shows the details of an specific item"""
     item = get_object_or_404(Item, pk=pk)
     return render(request, 'menu/detail_item.html', {'item': item})
+

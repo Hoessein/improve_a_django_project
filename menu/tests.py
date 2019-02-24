@@ -5,13 +5,12 @@ from django.contrib.auth.models import User
 from .models import Menu, Item, Ingredient
 from django.core.urlresolvers import reverse
 from .forms import MenuForm
-import pdb
-
 
 
 class MenuModelTests(TestCase):
 
     def test_menu_creation(self):
+        """Tests if Menu object can be created"""
         menu = Menu.objects.create(
             season='Summer',
             created_date=timezone.now(),
@@ -21,9 +20,11 @@ class MenuModelTests(TestCase):
         now = timezone.now()
         self.assertLess(menu.created_date, now)
 
+
 class ItemModelTests(TestCase):
 
     def test_item_creation(self):
+        """Tests if Item object can be created"""
         item = Item.objects.create(
             name='Item',
             description='Greatest',
@@ -35,7 +36,8 @@ class ItemModelTests(TestCase):
 
 class IngredientModelTests(TestCase):
 
-    def test_ingredient_menu(self):
+    def test_ingredient_creation(self):
+        """Tests if Ingredient object can be created"""
         ingredient = Ingredient.objects.create(
             name='Ciara'
         )
@@ -61,15 +63,14 @@ class MenuViewsTests(TestCase):
         )
 
     def test_menu_list_view(self):
-        """tests the home view"""
+        """tests the menu list view"""
         resp = self.client.get(reverse('menu:menu_list'))
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp, 'menu/menu_list.html')
         self.assertIn(self.menu, resp.context['menus'])
-        # self.assertContains(resp, 'Search')
-        # self.assertContains(resp, self.mineral)
 
-    def test_menu_detail(self):
+    def test_menu_detail_view(self):
+        """Tests the menu detail view"""
         resp = self.client.get(reverse('menu:menu_detail',
                                        kwargs={'pk': self.menu.pk}))
         self.assertEqual(resp.status_code, 200)
@@ -78,33 +79,47 @@ class MenuViewsTests(TestCase):
         self.assertTemplateUsed(resp, 'menu/menu_detail.html')
 
     def test_detail_404(self):
+        """Tests if 404 is generated if object doesn't exist"""
         resp = self.client.get(reverse('menu:menu_detail', kwargs={'pk': 984}))
         self.assertEqual(resp.status_code, 404)
 
-    def test_create_menu(self):
-        # self.client.login(username='testing', password='123456')
+    def test_create_menu_view(self):
+        """Tests if a menu object can be created"""
         resp = self.client.get(reverse('menu:create_menu'))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual('Create Menu', resp.context['title'])
         self.assertTemplateUsed(resp, 'menu/menu_edit.html')
 
-    def test_edit_menu(self):
+    def test_edit_menu_view(self):
+        """"Tests if a menu object can be edited"""
         resp = self.client.get(reverse('menu:edit_menu', kwargs={'pk': self.menu.pk}))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual('Edit Menu', resp.context['title'])
         self.assertTemplateUsed(resp, 'menu/menu_edit.html')
 
-    def test_item_detail(self):
+    def test_item_detail_view(self):
+        """Tests the item detail view"""
         resp = self.client.get(reverse('menu:item_detail', kwargs={'pk': self.item.pk}))
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp, 'menu/detail_item.html')
 
+
 class MenuFormTests(TestCase):
     def test_menu_form(self):
-        test_user = User.objects.create_user(username='testing', password='123456')
-        test_item = Item.objects.create(name='Hoessein', description='Whut', chef=test_user)
+        """tests the menu form"""
+        test_user = User.objects.create_user(
+            username='testing',
+            password='123456'
+        )
 
-        form_data = {'season': 'Winter',
+        test_item = Item.objects.create(
+            name='Hoessein',
+            description='Whut',
+            chef=test_user
+        )
+
+        form_data = {
+            'season': 'Winter',
             'items': [test_item.id],
             'expiration_date': '03/20/2020'
         }
@@ -113,6 +128,23 @@ class MenuFormTests(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_clean_season_field(self):
-        pass
+        """Tests if validation error is raised for the season field"""
+        test_user = User.objects.create_user(
+            username='testing',
+            password='123456'
+        )
 
+        test_item = Item.objects.create(
+            name='Hoessein',
+            description='Whut',
+            chef=test_user
+        )
 
+        form_data = {
+            'season': 'Char',
+            'items': [test_item.id],
+            'expiration_date': '03/20/9999'
+        }
+
+        form = MenuForm(data=form_data)
+        self.assertFalse(form.is_valid())
